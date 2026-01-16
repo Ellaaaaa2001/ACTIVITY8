@@ -6,15 +6,21 @@ export const MYSQL_POOL = 'MYSQL_POOL';
 export const DatabaseProvider: Provider = {
   provide: MYSQL_POOL,
   useFactory: async () => {
-    const pool = mysql.createPool({
+    const config: any = {
       host: process.env.DB_HOST || 'localhost',
       user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'chat_app',
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
-    });
+    };
+
+    // Only add password if it's explicitly set
+    if (process.env.DB_PASSWORD !== undefined) {
+      config.password = process.env.DB_PASSWORD;
+    }
+
+    const pool = mysql.createPool(config);
 
     // Initialize tables (similar to old server)
     await pool.query(`
